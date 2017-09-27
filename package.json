@@ -1,0 +1,40 @@
+{
+  "name": "ripe-banana",
+  "version": "1.0.0",
+  "description": "401 - ripe banana lab",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha tests --recursive",
+    "dev": "nodemon --exec 'npm run test -- -w' ",
+    "test:unit": "mocha tests/unit",
+    "dev:unit": "nodemon --exec 'npm run test/unit'",
+    "test:e2e": "mocha tests/e2e",
+    "dev:e2d": "nodemon --exec 'npm run test/e2e'",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markpetrie/three-resource-express-app.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/markpetrie/three-resource-express-app/issues"
+  },
+  "homepage": "https://github.com/markpetrie/three-resource-express-app#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "jsonwebtoken-promisified": "^1.0.3",
+    "mongoose": "^4.11.4"
+  },
+  "devDependencies": {
+    "chai": "^4.1.0",
+    "chai-http": "^3.0.0",
+    "eslint": "^4.3.0",
+    "mocha": "^3.4.2",
+    "nodemon": "^1.11.0",
+    "morgan": "^1.8.2"
+  }
+}
