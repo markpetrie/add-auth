@@ -5,9 +5,16 @@ const assert = require('chai').assert;
 describe('films REST api', () => {
     before(db.drop);
 
+    let token = null;
+    before(() => {
+        return db.getToken()
+            .then(t => token = t);
+    });
+
     let studio = null;
     before(() => {
         return request.post('/studios')
+            .set('Authorization', token)
             .send({name: 'universal studios'})
             .then(res => res.body)
             .then(savedStudio => studio = savedStudio);
@@ -15,6 +22,7 @@ describe('films REST api', () => {
     let actor = null;
     before(()=>{
         return request.post('/actors')
+            .set('Authorization', token)
             .send({name: 'Sam Neill'})
             .then(res => res.body)
             .then(savedActor => actor = savedActor);
@@ -46,6 +54,7 @@ describe('films REST api', () => {
         film.studio = studio._id;
         return request
             .post('/films')
+            .set('Authorization', token)
             .send(film)
             .then(res => res.body);
     }
@@ -57,7 +66,8 @@ describe('films REST api', () => {
                 jurassP = saved;
             })
             .then(() => {
-                return request.get(`/films/${jurassP._id}`);
+                return request.get(`/films/${jurassP._id}`)
+                    .set('Authorization', token);
             })
             .then(res => res.body)
             .then(got => {
@@ -65,22 +75,25 @@ describe('films REST api', () => {
             });
     });
     it('returns 404 if film does not exist', () => {
-        return request.get('/films/58ff9f496aafd447254c2666').then(
-            () => {
-                throw new Error('successful status code not expected');
-            },
-            ({ response }) => {
-                assert.ok(response.notFound);
-                assert.isOk(response.error);
-            }
-        );
+        return request.get('/films/58ff9f496aafd447254c2666')
+            .set('Authorization', token)
+            .then(
+                () => {
+                    throw new Error('successful status code not expected');
+                },
+                ({ response }) => {
+                    assert.ok(response.notFound);
+                    assert.isOk(response.error);
+                }
+            );
     });
     it('GET all films', () => {
         return Promise.all([
             saveFilm(jaw),
             saveFilm(et)
         ])
-            .then(() => request.get('/films'))
+            .then(() => request.get('/films')
+                .set('Authorization', token))
             .then(res => {
                 const films = res.body;
                 const tstfilms = [jurassP, jaw, et];
@@ -98,6 +111,7 @@ describe('films REST api', () => {
             .then((saved)=> {
                 return request
                     .put(`/films/${saved._id}`)
+                    .set('Authorization', token)
                     .send(bruAlm);
             })
             .then(res => {
@@ -108,12 +122,14 @@ describe('films REST api', () => {
     });
     it('deletes film by id', () => {
         return request.delete(`/films/${jurassP._id}`)
+            .set('Authorization', token)
             .then(res => {
                 assert.deepEqual(JSON.parse(res.text), {removed: true});
             });
     });
     it('deletes film by id', () => {
         return request.delete(`/films/${jurassP._id}`)
+            .set('Authorization', token)
             .then(res => {
                 assert.deepEqual(JSON.parse(res.text), {removed: false});
             });
