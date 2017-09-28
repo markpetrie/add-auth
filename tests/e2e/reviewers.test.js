@@ -15,6 +15,7 @@ describe('reviewer REST api', () => {
         
     it('initial /GET returns empty list', () => {
         return request.get('/reviewers')
+            .set('Authorization', token)
             .then(req => {
                 const reviewers = req.body;
                 assert.deepEqual(reviewers, []);
@@ -56,6 +57,7 @@ describe('reviewer REST api', () => {
         return Promise.all([
             // Saves studios
             request.post('/studios')
+                .set('Authorization', token)
                 .send(studio1)
                 .then(res => res.body)
                 .then(saved => {
@@ -64,6 +66,7 @@ describe('reviewer REST api', () => {
                 }),
 
             request.post('/studios')
+                .set('Authorization', token)
                 .send(studio2)
                 .then(res => res.body)
                 .then(saved => {
@@ -73,6 +76,7 @@ describe('reviewer REST api', () => {
 
             //saves actor
             request.post('/actors')
+                .set('Authorization', token)
                 .send(jeff)
                 .then(res => res.body)
                 .then(saved => {
@@ -84,6 +88,7 @@ describe('reviewer REST api', () => {
             //saves films
             .then(() => {
                 return request.post('/films')
+                    .set('Authorization', token)
                     .send({
                         title: 'Jurassic Park',
                         studio: studio1._id,
@@ -102,6 +107,7 @@ describe('reviewer REST api', () => {
 
             .then(() => {
                 return request.post('/films')
+                    .set('Authorization', token)
                     .send({
                         title: 'The Fly',
                         studio: studio2._id,
@@ -121,6 +127,7 @@ describe('reviewer REST api', () => {
 
             .then(() => {
                 return request.post('/films')
+                    .set('Authorization', token)
                     .send({
                         title: 'Jurassic Park 3',
                         studio: studio2._id,
@@ -141,6 +148,7 @@ describe('reviewer REST api', () => {
             // save reviewers
             .then(() => {
                 return request.post('/reviewers')
+                    .set('Authorization', token)
                     .send({
                         name: 'John Smith',
                         company: 'Movie Reviews Inc.'
@@ -155,6 +163,7 @@ describe('reviewer REST api', () => {
 
             .then(() => {
                 return request.post('/reviewers')
+                    .set('Authorization', token)
                     .send({
                         name: 'Amy Jones',
                         company: 'Amy Reviews'
@@ -222,8 +231,9 @@ describe('reviewer REST api', () => {
 
     function saveReviewer(reviewer) {
 
-        return request.post('/reviewers')
+        return request.post('/reviewers')            
             .send(reviewer)
+            .set('Authorization', token)
             .then(res => res.body)
             .then(saved => {
                 reviewer = saved;
@@ -239,7 +249,8 @@ describe('reviewer REST api', () => {
                 manohla = saved;
             })
             .then(() => {
-                return request.get(`/reviewers/${manohla._id}`);
+                return request.get(`/reviewers/${manohla._id}`)
+                    .set('Authorization', token);
             })
             .then(res => res.body)
             .then(got => {
@@ -251,6 +262,7 @@ describe('reviewer REST api', () => {
     it('GET returns 404 for non-existent id', () => {
         const nonId = '597e9d4a119656c01e87d37e';
         return request.get(`/${nonId}`)
+            .set('Authorization', token)
             .then(
                 () => { throw new Error('expected 404'); },
                 res => {
@@ -268,7 +280,8 @@ describe('reviewer REST api', () => {
                 david = savedReviewers[0];
                 jeffrey = savedReviewers[1];
             })
-            .then(() => request.get('/reviewers'))
+            .then(() => request.get('/reviewers')
+                .set('Authorization', token))
             .then(res => res.body)
             .then(reviewers => {
                 assert.equal(reviewers.length, 5);
@@ -281,6 +294,7 @@ describe('reviewer REST api', () => {
     it('GETs reviewer if it exists', () => {
         return request
             .get(`/reviewers/${john._id}`)
+            .set('Authorization', token)
             .then(res => res.body)
             .then(reviewer => {
                 assert.equal(reviewer.name, john.name);
@@ -292,6 +306,7 @@ describe('reviewer REST api', () => {
     it('updates reviewer', () => {
         manohla.company = 'The NY Times';
         return request.put(`/reviewers/${manohla._id}`)
+            .set('Authorization', token)
             .send(manohla)
             .then(res => res.body)
             .then(updated => {
@@ -301,11 +316,13 @@ describe('reviewer REST api', () => {
 
     it('deletes a reviewer', () => {
         return request.delete(`/reviewers/${jeffrey._id}`)
+            .set('Authorization', token)
             .then(res => res.body)
             .then(result => {
                 assert.isTrue(result.removed);
             })
-            .then(() => request.get('/reviewers'))
+            .then(() => request.get('/reviewers')
+                .set('Authorization', token))
             .then(res => res.body)
             .then(reviewers => {
                 assert.equal(reviewers.length, 4);
@@ -315,6 +332,7 @@ describe('reviewer REST api', () => {
 
     it('delete a non-existent reviewer is removed false', () => {
         return request.delete(`/reviewers/${jeffrey._id}`)
+            .set('Authorization', token)
             .then(res => res.body)
             .then(result => {
                 assert.isFalse(result.removed);

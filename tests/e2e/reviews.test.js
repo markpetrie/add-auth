@@ -49,6 +49,7 @@ describe('review REST api', () => {
         return Promise.all([
 
             request.post('/reviewers')
+                .set('Authorization', token)
                 .send(reviewer)
                 .then(res => res.body)
                 .then(saved => {
@@ -57,6 +58,7 @@ describe('review REST api', () => {
                 }),
 
             request.post('/studios')
+                .set('Authorization', token)
                 .send(studio1)
                 .then(res => res.body)
                 .then(saved => {
@@ -65,6 +67,7 @@ describe('review REST api', () => {
                 }),
 
             request.post('/studios')
+                .set('Authorization', token)
                 .send(studio2)
                 .then(res => res.body)
                 .then(saved => {
@@ -73,6 +76,7 @@ describe('review REST api', () => {
                 }),
 
             request.post('/actors')
+                .set('Authorization', token)
                 .send(jeff)
                 .then(res => res.body)
                 .then(saved => {
@@ -83,6 +87,7 @@ describe('review REST api', () => {
         ])
             .then(() => {
                 return request.post('/films')
+                    .set('Authorization', token)
                     .send({
                         title: 'Jurassic Park',
                         studio: studio1._id,
@@ -101,6 +106,7 @@ describe('review REST api', () => {
 
             .then(() => {
                 return request.post('/films')
+                    .set('Authorization', token)
                     .send({
                         title: 'The Fly',
                         studio: studio2._id,
@@ -120,6 +126,7 @@ describe('review REST api', () => {
 
             .then(() => {
                 return request.post('/films')
+                    .set('Authorization', token)
                     .send({
                         title: 'Jurassic Park 3',
                         studio: studio2._id,
@@ -140,7 +147,7 @@ describe('review REST api', () => {
 
     it('initial /GET returns empty list', () => {
         return request.get('/reviews')
-            .set('Authorization', token)
+            .set('Authorization', token)          
             .then(req => {
                 const reviews = req.body;
                 assert.deepEqual(reviews, []);
@@ -149,8 +156,8 @@ describe('review REST api', () => {
 
     function saveReview(review) {
         return request.post('/reviews')
-            .set('Authorization', token)
             .send(review)
+            .set('Authorization', token)
             .then(res => res.body);
     }
 

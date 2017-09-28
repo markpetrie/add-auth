@@ -6,9 +6,16 @@ describe('actors REST api',() => {
     
     before(db.drop);
 
+    let token = null;
+    before(() => {
+        return db.getToken()
+            .then(t => token = t);
+    });
+
     let studio = null;
     before(() => {
         return request.post('/studios')
+            .set('Authorization', token)
             .send({name: 'Legendary Pictures'})
             .then(res => res.body)
             .then(savedStudio => studio = savedStudio);
@@ -44,6 +51,7 @@ describe('actors REST api',() => {
         film.studio = studio._id;
         return request
             .post('/films')
+            .set('Authorization', token)
             .send(film)
             .then(res => res.body)
             .then(savedFilm => film = savedFilm);
@@ -51,6 +59,7 @@ describe('actors REST api',() => {
     function saveActor(actor) {
         return request
             .post('/actors')
+            .set('Authorization', token)
             .send(actor)
             .then(({body}) => {
                 actor._id = body._id;
@@ -73,6 +82,7 @@ describe('actors REST api',() => {
     it('GETs actor if it exists', () => {
         return request
             .get(`/actors/${matthMc._id}`)
+            .set('Authorization', token)
             .then(res =>res.body)
             .then(actor => {
                 assert.equal(actor.name, matthMc.name);
@@ -83,24 +93,27 @@ describe('actors REST api',() => {
             });
     });
     it('returns 404 if actor does not exist', () => {
-        return request.get('/actors/58ff9f496aafd447254c2666').then(
-            () => {
+        return request.get('/actors/58ff9f496aafd447254c2666')
+            .set('Authorization', token)
+            .then(
+                () => {
                 //resolve
-                throw new Error('successful status code not expected');
-            },
-            ({ response }) => {
+                    throw new Error('successful status code not expected');
+                },
+                ({ response }) => {
                 //reject
-                assert.ok(response.notFound);
-                assert.isOk(response.error);
-            }
-        );
+                    assert.ok(response.notFound);
+                    assert.isOk(response.error);
+                }
+            );
     });
+
     it('GET all actors', () => {
         return Promise.all([
             saveActor(harrsF),
             saveActor(peterD),
         ])
-            .then(() => request.get('/actors'))
+            .then(() => request.get('/actors').set('Authorization', token))            
             .then(res => {
                 const actors = res.body;
                 const tstactors = [matthMc, harrsF, peterD];
@@ -118,6 +131,7 @@ describe('actors REST api',() => {
         saveActor(zoeS)
             .then(() => {
                 return request.put(`/actors/${zoeS._id}`)
+                    .set('Authorization', token)
                     .send(zoeS)
                     .then(res => {
                         assert.isOk(res.body._id);
@@ -129,18 +143,21 @@ describe('actors REST api',() => {
     });
     it('deletes actor by id', () => {
         return request.delete(`/actors/${peterD._id}`)
+            .set('Authorization', token)
             .then(res => {
                 assert.deepEqual(JSON.parse(res.text), {removed: true});
             });
     });
     it('fails to delete the same actor by id', () => {
         return request.delete(`/actors/${peterD._id}`)
+            .set('Authorization', token)
             .then(res => {
                 assert.deepEqual(JSON.parse(res.text), {removed: false});
             });
     });
     it('fails to delete an actor with a film attached', () => {
         return request.delete(`/actors/${matthMc._id}`)
+            .set('Authorization', token)
             .then(res => {
                 assert.deepEqual(JSON.parse(res.text),{removed: false});
             },
